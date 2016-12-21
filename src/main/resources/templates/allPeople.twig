@@ -1,0 +1,79 @@
+{% extends "./base/page.twig" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/css/datatables/datatables.min.css">
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/datatables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#peopleTable').DataTable();
+        });
+    </script>
+
+{% endblock %}
+
+{% block body %}
+    <table id="peopleTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Imie</th>
+                <th>Nazwisko</th>
+                <th>Edytuj</th>
+                <th>Usun</th>
+            </tr>
+        </thead>
+        {% for item in allPeople %}
+            <tr>
+                <td>{{ item.getFistName }}</td>
+                <td>{{ item.getLastName }}</td>
+                <td><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></td>
+                <td><span class="glyphicon glyphicon-fire" aria-hidden="true"></span></td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+        Dodaj Osobe
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Dodaj Osobe</h4>
+                </div>
+                <div class="modal-body">
+                    One Fine Body
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
+                    <button type="button" class="btn btn-primary">Dodaj Osobe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Are you Sure Modal -->
+    <div class="modal fade" id="areYouSureModal" tabindex="-1" role="dialog" aria-labelledby="areYouSureModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="areYouSureModalLabel">Czy Jestes Pewny?</h4>
+                </div>
+                <div class="modal-body">
+                    One Fine Body
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
+                    <button type="button" class="btn btn-danger">Usun Osobe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

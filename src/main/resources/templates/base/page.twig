@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Skoroszyt Aplikacja</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap/bootstrap-theme.min.css">
+    {% block styles %}
+    {% endblock %}
+
+    <script src="/js/jquery/jquery-3.1.1.min.js"></script>
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+    {% block scripts %}
+    {% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Skoroszyt</a>
+        </div>
+    </div>
+</nav>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            {% block body %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
