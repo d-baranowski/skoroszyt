@@ -8,7 +8,7 @@ import pl.sati.beans.Person;
 import pl.sati.repos.PeopleRepository;
 
 @Controller
-@RequestMapping("/people")
+@RequestMapping("/web/people")
 public class PeopleController {
 
     private final PeopleRepository repository;
