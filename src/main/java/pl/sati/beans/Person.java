@@ -1,6 +1,7 @@
 package pl.sati.beans;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.*;
 
 @Entity
@@ -10,9 +11,12 @@ public class Person implements Serializable {
     @GeneratedValue
     private Long id;
     @Column(nullable = false)
-    private String fistName;
+    private String firstName;
     @Column(nullable = false)
     private String lastName;
+
+    @OneToMany(mappedBy="owner", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Entry> entryList;
 
     // ... additional members, often include @OneToMany mappings
     protected Person() {
@@ -21,7 +25,7 @@ public class Person implements Serializable {
     }
 
     public Person(String firstName, String lastName) {
-        this.fistName = firstName;
+        this.firstName = firstName;
         this.lastName = lastName;
     }
 
@@ -29,11 +33,15 @@ public class Person implements Serializable {
         return id;
     }
 
-    public String getFistName() {
-        return fistName;
+    public String getFirstName() {
+        return firstName;
     }
 
     public String getLastName() {
         return lastName;
+    }
+
+    public List<Entry> getEntryList() {
+        return entryList;
     }
 }

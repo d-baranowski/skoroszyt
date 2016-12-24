@@ -8,70 +8,190 @@
     <script src="/js/datatables/datatables.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#peopleTable').DataTable();
+            var table = $('#peopleTable').DataTable({
+                "pageLength": 100,
+                "language": polishDataTables,
+                "columns": [
+                    null,
+                    null,
+                    {"searchable": false, "orderable": false},
+                    {"searchable": false, "orderable": false}
+                ]
+            });
+
+            handleFormAsync('#addPersonForm', function (event) {
+                var link = event._links.person.href;
+
+                var id = parseInt(link.substr(link.lastIndexOf('/') + 1));
+                var firstName = event.firstName;
+                var lastName = event.lastName;
+
+                var rowNode = table
+                    .row.add([firstName, lastName,
+                        '<span class="glyphicon glyphicon-pencil js-edit" aria-hidden="true"></span>',
+                        '<span class="glyphicon glyphicon-fire js-remove" aria-hidden="true"></span>']
+                    )
+                    .draw()
+                    .node();
+
+                $(rowNode)
+                    .data('id', id)
+                    .data('firstName', firstName)
+                    .data('lastName', lastName);
+
+                $('#addModal').modal('hide');
+            });
+
+            handleFormAsync('#updatePersonForm', function (event) {
+                var link = event._links.person.href;
+
+                var id = parseInt(link.substr(link.lastIndexOf('/') + 1));
+                var firstName = event.firstName;
+                var lastName = event.lastName;
+
+                var rowNode = table
+                    .row(event.currentTarget).data(
+                        [firstName, lastName,
+                            '<span class="glyphicon glyphicon-pencil js-edit" aria-hidden="true"></span>',
+                            '<span class="glyphicon glyphicon-fire js-remove" aria-hidden="true"></span>']
+                    )
+                    .draw()
+                    .node();
+
+                $(rowNode)
+                    .data('id', id)
+                    .data('firstName', firstName)
+                    .data('lastName', lastName);
+
+                $('#updateModal').modal('hide');
+            });
+
+            $('#peopleTable tbody').on('click', 'tr', function (event) {
+                console.log(event);
+                var action = $(event.target);
+
+                if (action.hasClass('js-remove')) {
+                    areYouSure(function () {
+                        var id = $(event.currentTarget).data('id');
+                        deleteBean("/persons", id,
+                            function () {
+                                //Delete row from table
+                                table.row(event.currentTarget).remove().draw(false);
+                            }
+                        );
+                    });
+                }
+
+                if (action.hasClass('js-edit')) {
+                    var row = $(event.currentTarget);
+                    var id = row.data('id');
+                    var firstName = row.data('firstName');
+                    var lastName = row.data('lastName');
+                    var form = $('#updatePersonForm');
+
+                    //Set form elements to current values.
+                    var oFormObject = document.forms['updatePersonForm'];
+                    oFormObject.elements["firstName"].value = firstName;
+                    oFormObject.elements["lastName"].value = lastName;
+
+                    //Append id to target.
+                    form.attr("target", '/persons/' + id);
+
+                    $('#updateModal').modal('show');
+                }
+
+            });
+
         });
     </script>
-
 {% endblock %}
 
 {% block body %}
+    <div class="page-header">
+        <h1>Wszyscy zatrudnieni <small>jeszcze...</small></h1>
+    </div>
     <table id="peopleTable" class="table table-striped">
         <thead>
-            <tr>
-                <th>Imie</th>
-                <th>Nazwisko</th>
-                <th>Edytuj</th>
-                <th>Usun</th>
-            </tr>
+        <tr>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Edytuj</th>
+            <th>Usun</th>
+        </tr>
         </thead>
         {% for item in allPeople %}
-            <tr>
-                <td>{{ item.getFistName }}</td>
+            <tr data-id="{{ item.getId }}"
+                data-first-name="{{ item.getFirstName }}"
+                data-last-name="{{ item.getLastName }}"
+            >
+                <td>{{ item.getFirstName }}</td>
                 <td>{{ item.getLastName }}</td>
-                <td><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></td>
-                <td><span class="glyphicon glyphicon-fire" aria-hidden="true"></span></td>
+                <td><span class="glyphicon glyphicon-pencil js-edit" aria-hidden="true"></span></td>
+                <td><span class="glyphicon glyphicon-fire js-remove" aria-hidden="true"></span></td>
             </tr>
         {% endfor %}
     </table>
 
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addModal">
         Dodaj Osobe
     </button>
 
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <!-- Add Modal -->
+    <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Dodaj Osobe</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="addModalLabel">Dodaj Osobe</h4>
                 </div>
                 <div class="modal-body">
-                    One Fine Body
+                    <form id="addPersonForm"
+                          target="/persons"
+                          data-action-type="POST"
+                          data-should-confirm="false"
+                          data-parsley-validate>
+                        Imie:<br>
+                        <input type="text" name="firstName" data-parsley-maxlength="150" data-parsley-required><br>
+                        Nazwisko:<br>
+                        <input type="text" name="lastName" data-parsley-maxlength="150" data-parsley-required>
+                    </form>
                 </div>
                 <div class="modal-footer">
+                    <input class="btn btn-primary" id="confirmPerson" type="submit" form="addPersonForm"
+                           value="Dodaj Osobe"/>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
-                    <button type="button" class="btn btn-primary">Dodaj Osobe</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Are you Sure Modal -->
-    <div class="modal fade" id="areYouSureModal" tabindex="-1" role="dialog" aria-labelledby="areYouSureModalLabel">
+    <!-- Update Modal -->
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="areYouSureModalLabel">Czy Jestes Pewny?</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="updateModalLabel">Edytuj Osobe</h4>
                 </div>
                 <div class="modal-body">
-                    One Fine Body
+                    <form id="updatePersonForm"
+                          target="/persons/"
+                          data-action-type="PUT"
+                          data-should-confirm="false"
+                          data-parsley-validate>
+                        Imie:<br>
+                        <input type="text" name="firstName" data-parsley-maxlength="150" data-parsley-required><br>
+                        Nazwisko:<br>
+                        <input type="text" name="lastName" data-parsley-maxlength="150" data-parsley-required>
+                    </form>
                 </div>
                 <div class="modal-footer">
+                    <input class="btn btn-primary" id="confirmPerson" type="submit" form="updatePersonForm"
+                           value="Zatwierdz Edycje"/>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Anuluj</button>
-                    <button type="button" class="btn btn-danger">Usun Osobe</button>
                 </div>
             </div>
         </div>

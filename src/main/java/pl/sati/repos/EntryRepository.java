@@ -1,7 +1,15 @@
 package pl.sati.repos;
 
-/**
- * Created by Wieslawa on 22.12.2016.
- */
-public class EntryRepository {
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import pl.sati.beans.Entry;
+import pl.sati.beans.Person;
+
+import java.sql.Date;
+import java.util.List;
+
+@RepositoryRestResource
+public interface EntryRepository extends CrudRepository<Entry, Long> {
+    // Enabling ignoring case for all suitable properties
+    Entry findByOwnerAndDate(Person owner,Date date);
 }

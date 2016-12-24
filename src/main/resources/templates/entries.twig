@@ -1,0 +1,175 @@
+{% extends "./base/page.twig" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/css/datatables/datatables.min.css">
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/datatables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#peopleTable').DataTable({
+                "pageLength": 100,
+                "language": polishDataTables,
+                "columns": [
+                    null,
+                    null,
+                    {"searchable": false, "orderable": false},
+                    {"searchable": false, "orderable": false},
+                    {"searchable": false, "orderable": false},
+                    {"searchable": false, "orderable": false},
+                    {"searchable": false, "orderable": false},
+                    {"searchable": false, "orderable": false}
+                ]
+            });
+
+            handleFormAsync('.js-async-form', function (event) {
+                var form = $(this.form);
+                var hasEntry = form.data('hasEntry');
+                var button = $('#' + form.data('submitButton'));
+                if (!hasEntry) {
+                    form.data('hasEntry', true);
+                    var id = parseInt(event._links.self.href.substr(event._links.self.href.lastIndexOf('/') + 1));
+                    var newTarget = 'entries/' + id;
+                    form.attr('target', newTarget);
+                    form.data('actionType', "PUT");
+                    form.data('changed', true);
+                }
+                button.removeClass('btn-success');
+                button.addClass('btn-primary');
+                button.val('Zapisano');
+            }, function (event) {
+                console.log("Explosions");
+                console.log(event)
+            });
+
+            $('. js-change-hook').change(function () {
+                var form = $('#' + $(this).attr('form'));
+                var button = $('#' + form.data('submitButton'));
+                var formChanged = form.data('changed');
+
+                if (formChanged == false) {
+                    form.data('changed', true);
+                    button.removeClass('btn-primary');
+                    button.addClass('btn-success');
+                    button.val('Zapisz');
+                }
+            });
+
+            $('#otherDays').change(function () {
+                var date = $(this).val();
+                var validDate = Date.parse(date);
+
+                if (validDate && date != {{ date.toString() }}) {
+                    var getUrl = window.location;
+                    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+                    window.location.href = baseUrl + "/entries/" + date;
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    {% for entry in allEntries %}
+        <form id="formForPerson{{ entry.getPersonId }}"
+              data-has-entry="{{ entry.hasEntry }}"
+              data-should-confirm="false"
+              data-submit-button="buttonForForm{{ entry.getPersonId }}"
+              class="js-async-form"
+                {% if entry.hasEntry %}
+                    target="/entries/{{ entry.getEntryId }}"
+                    data-action-type="PUT"
+                    data-changed="false"
+                {% else %}
+                    target="/entries"
+                    data-action-type="POST"
+                    data-changed="true"
+                {% endif %}
+        >
+            <input name="date" type="hidden" value="{{ date }}"/>
+            <input name="owner" type="hidden" value="/persons/{{ entry.getPersonId }}"/>
+        </form>
+    {% endfor %}
+    <div class="page-header">
+    <div class="row">
+        <div class="form-horizontal">
+            <div class="form-group form-group-lg">
+                <label class="col-md-2 control-label" for="otherDays">Wpisy z Dnia:</label>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="otherDays" value="{{ date.toString() }}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="peopleTable" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Od</th>
+            <th>Do</th>
+            <th>Zaliczam</th>
+            <th>Powod</th>
+            <th>Bonus/Kara</th>
+            <th>Zapisz</th>
+        </tr>
+        </thead>
+        {% for entry in allEntries %}
+            <tr data-person-id="{{ entry.getPersonId }}"
+                data-entry-id="{{ entry.getEntryId }}"
+                data-first-name="{{ entry.getFirstName }}"
+                data-last-name="{{ entry.getLastName }}"
+            >
+                <td>{{ entry.getFirstName }}</td>
+                <td>{{ entry.getLastName }}</td>
+                <td>
+                    <input name="timeFrom" form="formForPerson{{ entry.getPersonId }}"
+                           class="form-control js-change-hook" type="time" value="{{ entry.getTimeFrom }}">
+                </td>
+                <td>
+                    <input name="timeTo" form="formForPerson{{ entry.getPersonId }}" class="form-control js-change-hook"
+                           type="time" value="{{ entry.getTimeTo }}">
+                </td>
+                <td>
+                    <input name="passed" form="formForPerson{{ entry.getPersonId }}" class="form-control js-change-hook"
+                           type="checkbox" value="true"
+                            {% if entry.isPassed == true %}
+                                checked
+                            {% endif %}
+                    >
+                </td>
+                <td>
+                    <select name="reason" class="form-control js-change-hook" form="formForPerson{{ entry.getPersonId }}">
+                        <option value="">N/A</option>
+                        <option value="Brak Obecnosci"
+                            {% if entry.getReason == "Brak Obecnosci" %}
+                                selected
+                            {% endif %}
+                        >Brak Obecnosci</option>
+                        <option value="Brak Toka"
+                            {% if entry.getReason == "Brak Toka" %}
+                                selected
+                            {% endif %}
+                        >Brak Toka</option>
+                    </select>
+                </td>
+                <td>
+                    <input name="penaltyOrBonus" form="formForPerson{{ entry.getPersonId }}"
+                           class="form-control js-change-hook" type="number" value="{{ entry.getPenaltyOrBonus }}">
+                </td>
+                <td>
+                    <input type="submit" id="buttonForForm{{ entry.getPersonId }}"
+                           form="formForPerson{{ entry.getPersonId }}"
+                           name="submitForm{{ entry.getPersonId }}"
+                            {% if entry.hasEntry %}
+                           class="btn btn-primary" value="Zapisano">
+                    {% else %}
+                        class="btn btn-success" value="Zapisz">
+                    {% endif %}
+                    </input>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

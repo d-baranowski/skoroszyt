@@ -11,6 +11,10 @@
 
     <script src="/js/jquery/jquery-3.1.1.min.js"></script>
     <script src="/js/bootstrap/bootstrap.min.js"></script>
+    <script src="/js/parsley/parsley.min.js"></script>
+    <script src="/js/bootbox/bootbox.min.js"></script>
+    <script src="/js/serializeJson/jquery.serializejson.js"></script>
+    <script src="/js/utils.js"></script>
     {% block scripts %}
     {% endblock %}
 </head>
@@ -20,11 +24,16 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="/">Skoroszyt</a>
         </div>
+            <ul class="nav navbar-nav">
+                <li><a href="/web/people">Ludzie</a></li>
+                <li><a href="/web/entries">Wpisy</a></li>
+                <li><a href="#">Podsumowanie</a></li>
+            </ul>
     </div>
 </nav>
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div id="content" class="col-md-10 col-md-offset-1">
             {% block body %}
             {% endblock %}
         </div>
