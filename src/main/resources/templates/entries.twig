@@ -33,17 +33,17 @@
                     var newTarget = 'entries/' + id;
                     form.attr('target', newTarget);
                     form.data('actionType', "PUT");
-                    form.data('changed', true);
                 }
                 button.removeClass('btn-success');
                 button.addClass('btn-primary');
                 button.val('Zapisano');
+                form.data('changed', false);
             }, function (event) {
                 console.log("Explosions");
                 console.log(event)
             });
 
-            $('. js-change-hook').change(function () {
+            $('.js-change-hook').change(function () {
                 var form = $('#' + $(this).attr('form'));
                 var button = $('#' + form.data('submitButton'));
                 var formChanged = form.data('changed');
