@@ -1,0 +1,86 @@
+{% extends "./base/page.twig" %}
+
+{% block styles %}
+    <link rel="stylesheet" type="text/css" href="/css/datatables/datatables.min.css">
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/datatables/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#summaryTable').DataTable({
+                "pageLength": 100,
+                "language": polishDataTables
+            });
+
+            $('#findBtn').click(function () {
+                var from = $('#fromDay').val();
+                var validFrom = Date.parse(from);
+
+                var to = $('#toDay').val();
+                var validTo = Date.parse(to);
+
+                if (validFrom && validTo) {
+                    var getUrl = window.location;
+                    var baseUrl = getUrl.protocol + "//" + getUrl.host + "/" + getUrl.pathname.split('/')[1];
+                    window.location.href = baseUrl + "/summary/" + from + "/" + to;
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="page-header">
+    <div class="row">
+        <div class="form-horizontal">
+            <div class="form-group form-group-lg">
+                <label class="col-md-3 control-label" for="fromDay">Podsumowanie od:</label>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="fromDay" value="{{ from.toString() }}">
+                </div>
+                <label class="col-md-1 control-label" for="toDay">do:</label>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" id="toDay" value="{{ to.toString() }}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary" id="findBtn">Znajdz</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table id="summaryTable" class="table table-striped">
+        <thead>
+        <tr>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Przepracowane Godziny</th>
+            <th>Dni bez Toka</th>
+            <th>Dni bez Obecnosci</th>
+            <th>Suma Bonusow I Kar</th>
+        </tr>
+        </thead>
+        {% for summary in summaries %}
+            <tr>
+                <td>
+                    {{ summary.getFirstName }}
+                </td>
+                <td>
+                    {{ summary.getLastName }}
+                </td>
+                <td>
+                    {{ summary.getHourSum }}
+                </td>
+                <td>
+                    {{ summary.getAbsenceOfToksCount }}
+                </td>
+                <td>
+                    {{ summary.getAbsenceFromWorkCount }}
+                </td>
+                <td>
+                    {{ summary.getPenaltyAndBonusSum }} zl
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

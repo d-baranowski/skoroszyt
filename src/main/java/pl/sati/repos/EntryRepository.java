@@ -12,4 +12,6 @@ import java.util.List;
 public interface EntryRepository extends CrudRepository<Entry, Long> {
     // Enabling ignoring case for all suitable properties
     Entry findByOwnerAndDate(Person owner,Date date);
+
+    List<Entry> findByDateBetween(Date start, Date end);
 }

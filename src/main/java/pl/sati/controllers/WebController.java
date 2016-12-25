@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import pl.sati.beans.Person;
+import pl.sati.makers.PersonSummaryMaker;
 import pl.sati.pojos.PersonEntry;
 import pl.sati.repos.EntryRepository;
 import pl.sati.repos.PeopleRepository;
@@ -14,6 +15,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @Controller
@@ -69,4 +71,38 @@ public class WebController {
         model.addAttribute("date",date);
         model.addAttribute("allEntries",allEntries);
     }
+
+    private void setupSummaries(Date from, Date to, Model model) {
+        model.addAttribute("summaries",
+                new PersonSummaryMaker(entryRepository.findByDateBetween(from, to))
+                        .getAllPeopleSummeries());
+        model.addAttribute("from", from);
+        model.addAttribute("to", to);
+    }
+
+    @RequestMapping("/summary")
+    public String summary(Model model) {
+        Calendar c = Calendar.getInstance();   // this takes current date
+        c.set(Calendar.DAY_OF_MONTH, 1);
+        Date from = new Date(c.getTime().getTime());
+        c.set(Calendar.DAY_OF_MONTH,c.getActualMaximum(Calendar.DAY_OF_MONTH));
+        Date to = new Date(c.getTime().getTime());
+
+        setupSummaries(from, to, model);
+
+        return "summary";
+    }
+
+    @RequestMapping("/summary/{from}/{to}")
+    public String summary(Model model,@PathVariable String from,@PathVariable String to) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        java.util.Date fromDate = sdf.parse(from);
+        java.util.Date toDate = sdf.parse(to);
+
+        setupSummaries(new Date(fromDate.getTime()), new Date(toDate.getTime()), model);
+
+        return "summary";
+    }
+
+
 }

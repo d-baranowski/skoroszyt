@@ -69,7 +69,7 @@ public class Entry {
     }
 
     public String getReason() {
-        return reason;
+        return reason != null ? reason : "";
     }
 
     public double getPenaltyOrBonus() {
