@@ -12,6 +12,32 @@
                 "pageLength": 100,
                 "language": polishDataTables
             });
+            
+            $('#fromDay').change(function () {
+                var value = $(this).val();
+                var validFrom = Date.parse(value);
+
+                if (validFrom) {
+                    var toDay = $('#toDay');
+                    toDay.attr('min', value);
+                    if (toDay[0].validity.rangeUnderflow) {
+                        toDay.val(value);
+                    }
+                }
+            });
+
+            $('#toDay').change(function () {
+                var value = $(this).val();
+                var validFrom = Date.parse(value);
+
+                if (validFrom) {
+                    var fromDay = $('#fromDay');
+                    fromDay.attr('max', value);
+                    if (fromDay[0].validity.rangeOverflow) {
+                        fromDay.val(value);
+                    }
+                }
+            });
 
             $('#findBtn').click(function () {
                 var from = $('#fromDay').val();
@@ -69,7 +95,7 @@
                     {{ summary.getLastName }}
                 </td>
                 <td>
-                    {{ summary.getHourSum }}
+                    {{ summary.getDurationBreakdown }}
                 </td>
                 <td>
                     {{ summary.getAbsenceOfToksCount }}

@@ -6,19 +6,23 @@ public class PersonSummary {
     private Person person;
     private int absenceOfToksCount;
     private int absenceFromWorkCount;
-    private int hourSum;
+    private Duration durationWorked;
     private double penaltyAndBonusSum;
 
-    public PersonSummary(Person person, int absenceOfToksCount, int absenceFromWorkCount, double penaltyAndBonusSum, int hourSum) {
+    public PersonSummary(Person person, int absenceOfToksCount, int absenceFromWorkCount, Duration durationWorked, int minutesWorked, double penaltyAndBonusSum) {
         this.person = person;
         this.absenceOfToksCount = absenceOfToksCount;
         this.absenceFromWorkCount = absenceFromWorkCount;
+        this.durationWorked = durationWorked;
         this.penaltyAndBonusSum = penaltyAndBonusSum;
-        this.hourSum = hourSum;
     }
 
-    public int getHourSum() {
-        return hourSum;
+    public Duration getDurationWorked() {
+        return durationWorked;
+    }
+
+    public String getDurationBreakdown(){
+        return durationWorked != null ? durationWorked.getDurationBreakdown() : "";
     }
 
     public String getFirstName() {

@@ -2,6 +2,7 @@ package pl.sati.makers;
 
 import pl.sati.beans.Entry;
 import pl.sati.beans.Person;
+import pl.sati.pojos.Duration;
 import pl.sati.pojos.PersonSummary;
 
 import java.text.ParseException;
@@ -15,9 +16,12 @@ public class PersonSummaryMaker {
         personEntriesMap = new HashMap<>();
         for (Entry entry: entries) {
             if (!personEntriesMap.containsKey(entry.getOwner())) {
-                personEntriesMap.put(entry.getOwner(), Arrays.asList(entry));
+                ArrayList<Entry> newList = new ArrayList<>();
+                newList.add(entry);
+                personEntriesMap.put(entry.getOwner(), newList);
             } else {
-                personEntriesMap.get(entry.getOwner()).add(entry);
+                List<Entry> personEntries = personEntriesMap.get(entry.getOwner());
+                personEntries.add(entry);
             }
         }
     }
@@ -26,7 +30,8 @@ public class PersonSummaryMaker {
         List<PersonSummary> summaries = new ArrayList<>();
 
         for (Person key : personEntriesMap.keySet()) {
-            int hoursWokred = 0;
+            Duration hoursWokredSum = new Duration();
+            int minutesWorkedSum = 0;
             int lackOfTok = 0;
             int absence = 0;
             double penaltyAndBonusSum = 0.00;
@@ -46,15 +51,14 @@ public class PersonSummaryMaker {
                         Date from = sdf.parse(entry.getTimeFrom());
                         Date to = sdf.parse(entry.getTimeTo());
 
-                        Date hours = new Date(to.getTime() - from.getTime());
-                        hoursWokred+= hours.getTime() / 3600000;
+                        hoursWokredSum.add(new Duration(from.getTime(), to.getTime()));
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
             }
 
-            summaries.add(new PersonSummary(key,lackOfTok, absence, penaltyAndBonusSum, hoursWokred));
+            summaries.add(new PersonSummary(key,lackOfTok, absence,hoursWokredSum, minutesWorkedSum, penaltyAndBonusSum));
         }
 
         return summaries;
