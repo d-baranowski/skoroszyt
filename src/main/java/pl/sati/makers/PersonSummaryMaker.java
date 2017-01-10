@@ -44,16 +44,17 @@ public class PersonSummaryMaker {
                     lackOfTok++;
                 }
                 penaltyAndBonusSum+= entry.getPenaltyOrBonus();
+                if (entry.isPassed()) {
+                    if (entry.getTimeFrom() != null && entry.getTimeTo() != null) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+                        try {
+                            Date from = sdf.parse(entry.getTimeFrom());
+                            Date to = sdf.parse(entry.getTimeTo());
 
-                if (entry.getTimeFrom() != null && entry.getTimeTo() != null) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-                    try {
-                        Date from = sdf.parse(entry.getTimeFrom());
-                        Date to = sdf.parse(entry.getTimeTo());
-
-                        hoursWokredSum.add(new Duration(from.getTime(), to.getTime()));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                            hoursWokredSum.add(new Duration(from.getTime(), to.getTime()));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
